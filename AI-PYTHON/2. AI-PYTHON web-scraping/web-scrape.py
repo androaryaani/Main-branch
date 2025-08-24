@@ -3,10 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 import google.generativeai as genai
 import os
-from dotenv import load_dotenv, set_key
-
-# Load environment variables from .env file
-load_dotenv()
+# Note: python-dotenv removed for Streamlit Cloud compatibility
+# Environment variables will be handled through Streamlit secrets
 
 st.set_page_config(page_title="Ariyaani-Here", layout="wide")
 
