@@ -14,7 +14,7 @@ A powerful web scraping application that uses Google Gemini AI to analyze and an
 ## Deployment on Streamlit Cloud
 
 ### 1. Requirements
-- Python 3.8+
+- Python 3.9 (specified in runtime.txt)
 - Google Gemini API Key
 
 ### 2. Setup Instructions
@@ -27,12 +27,33 @@ A powerful web scraping application that uses Google Gemini AI to analyze and an
    - Go to [share.streamlit.io](https://share.streamlit.io)
    - Connect your GitHub repository
    - Set the main file path: `web-scrape.py`
+   - The app will use the following configuration files:
+     - `requirements.txt` - Python dependencies
+     - `runtime.txt` - Python version (3.9)
+     - `.streamlit/config.toml` - Streamlit configuration
+     - `packages.txt` - System packages (empty for this app)
 4. **Configure Secrets (Recommended)**
    - In Streamlit Cloud dashboard, go to "Manage app" → "Secrets"
    - Add your API key:
      ```toml
      GOOGLE_API_KEY = "your_api_key_here"
      ```
+
+### 3. Troubleshooting Deployment Issues
+
+If you encounter "Error installing requirements":
+
+1. **Check Python Version**: Ensure runtime.txt specifies `python-3.9`
+2. **Verify Requirements**: Make sure requirements.txt contains only:
+   ```
+   streamlit
+   requests
+   beautifulsoup4
+   google-generativeai
+   ```
+3. **Clear Cache**: In Streamlit Cloud, go to "Manage app" → "Reboot app"
+4. **Check Logs**: Click "Manage app" and check the terminal logs for specific errors
+5. **Repository Structure**: Ensure all files are in the root directory of your repository
 
 ### 3. Local Development
 
