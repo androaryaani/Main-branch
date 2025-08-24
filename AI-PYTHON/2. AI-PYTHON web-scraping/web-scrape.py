@@ -17,8 +17,15 @@ with st.sidebar:
     # API Configuration Section
     st.subheader("🔑 API Configuration")
     
-    # Get current API key from environment or session state
-    current_api_key = os.getenv("GOOGLE_API_KEY", "")
+    # Get current API key from Streamlit secrets, environment, or session state
+    current_api_key = ""
+    try:
+        # Try to get from Streamlit secrets first (for Streamlit Cloud)
+        current_api_key = st.secrets.get("GOOGLE_API_KEY", "")
+    except:
+        # Fallback to environment variable
+        current_api_key = os.getenv("GOOGLE_API_KEY", "")
+    
     if "api_key" not in st.session_state:
         st.session_state.api_key = current_api_key
     
@@ -33,11 +40,11 @@ with st.sidebar:
     # Update API key button
     if st.button("💾 Save API Key"):
         if api_key_input.strip():
-            # Save to .env file
-            set_key(".env", "GOOGLE_API_KEY", api_key_input.strip())
+            # Save to session state (for Streamlit Cloud compatibility)
             st.session_state.api_key = api_key_input.strip()
             os.environ["GOOGLE_API_KEY"] = api_key_input.strip()
-            st.success("✅ API Key saved successfully!")
+            st.success("✅ API Key saved for this session!")
+            st.info("💡 For permanent storage on Streamlit Cloud, add your API key to Streamlit secrets.")
             st.rerun()
         else:
             st.error("❌ Please enter a valid API key")
@@ -113,12 +120,13 @@ with st.sidebar:
     
     # Save app settings
     if st.button("💾 Save App Settings"):
-        set_key(".env", "REQUEST_TIMEOUT", str(timeout))
-        set_key(".env", "MAX_CONTENT_LENGTH", str(max_content))
-        set_key(".env", "PREFERRED_LANGUAGE", language_options[selected_language])
-        set_key(".env", "RESPONSE_FORMAT", response_format)
-        set_key(".env", "RESPONSE_LENGTH", response_length)
-        st.success("✅ App settings saved!")
+        # Save to session state (for Streamlit Cloud compatibility)
+        st.session_state.request_timeout = timeout
+        st.session_state.max_content_length = max_content
+        st.session_state.preferred_language = language_options[selected_language]
+        st.session_state.response_format = response_format
+        st.session_state.response_length = response_length
+        st.success("✅ App settings saved for this session!")
     
     # API Status
     st.subheader("📊 Status")
@@ -166,9 +174,9 @@ if ask_button:
         st.error("❌ Gemini AI model not configured. Please check your API key.")
     else:
         try:
-            # Get current settings
-            current_timeout = int(os.getenv("REQUEST_TIMEOUT", str(timeout)))
-            current_max_content = int(os.getenv("MAX_CONTENT_LENGTH", str(max_content)))
+            # Get current settings from session state or defaults
+            current_timeout = getattr(st.session_state, 'request_timeout', timeout)
+            current_max_content = getattr(st.session_state, 'max_content_length', max_content)
             
             with st.spinner("🔍 Scraping website content..."):
                 response = requests.get(url, timeout=current_timeout)
@@ -188,10 +196,10 @@ if ask_button:
                 st.warning(f"⚠️ Content truncated to {current_max_content} characters (from {len(text)} total)")
 
             with st.spinner("🤖 Sending to Gemini AI..."):
-                # Get language and formatting preferences
-                preferred_language = os.getenv("PREFERRED_LANGUAGE", "auto")
-                format_style = os.getenv("RESPONSE_FORMAT", "Professional & Detailed")
-                length_preference = os.getenv("RESPONSE_LENGTH", "Medium Detail")
+                # Get language and formatting preferences from session state or defaults
+                preferred_language = getattr(st.session_state, 'preferred_language', "auto")
+                format_style = getattr(st.session_state, 'response_format', "Professional & Detailed")
+                length_preference = getattr(st.session_state, 'response_length', "Medium Detail")
                 
                 # Language detection and instruction
                 if preferred_language == "auto":
